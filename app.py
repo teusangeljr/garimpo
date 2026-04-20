@@ -162,6 +162,11 @@ def health():
     """Health check endpoint"""
     return jsonify({'status': 'ok', 'timestamp': datetime.now().isoformat()})
 
+@app.route('/ping')
+def ping():
+    """Lightweight ping endpoint for monitoring"""
+    return 'pong', 200
+
 def keep_awake():
     """Thread function to ping self and keep the app from sleeping on Render"""
     url = os.environ.get('RENDER_EXTERNAL_URL')
@@ -172,9 +177,9 @@ def keep_awake():
     print(f"Keep-awake: Iniciando pinger para {url}")
     while True:
         try:
-            # Espera 14 minutos (Render dorme em 15)
-            time.sleep(840)
-            requests.get(f"{url}/health")
+            # Espera 10 minutos (Render dorme em 15)
+            time.sleep(600)
+            requests.get(f"{url}/ping")
             print(f"Keep-awake: Ping enviado às {datetime.now().strftime('%H:%M:%S')}")
         except Exception as e:
             print(f"Keep-awake: Erro no ping: {e}")

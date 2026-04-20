@@ -306,10 +306,24 @@ class LeadScraper:
         if self.headless:
             opts.add_argument('--headless=new')
 
+        # Estratégia de carregamento rápido (não espera imagens/anúncios)
+        opts.page_load_strategy = 'eager'
+
+        # Preferências para economizar RAM e Banda
+        prefs = {
+            "profile.managed_default_content_settings.images": 2, # Bloqueia Imagens
+            "profile.default_content_setting_values.notifications": 2,
+            "profile.managed_default_content_settings.stylesheets": 2, # Opcional: Bloqueia CSS (pode quebrar alguns sites)
+        }
+        # Nota: Bloquear CSS pode quebrar sites que dependem de visibilidade. Vou manter apenas imagens por enquanto.
+        prefs = {"profile.managed_default_content_settings.images": 2}
+        opts.add_experimental_option("prefs", prefs)
 
         for arg in [
             '--disable-blink-features=AutomationControlled',
             '--disable-dev-shm-usage', '--no-sandbox', '--disable-gpu',
+            '--disable-extensions', '--disable-infobars', '--mute-audio',
+            '--disable-browser-side-navigation',
             '--lang=pt-BR', '--window-size=1366,768',
         ]:
             opts.add_argument(arg)
@@ -322,7 +336,7 @@ class LeadScraper:
         else:
             self.driver = webdriver.Edge(options=opts)
 
-        self.driver.set_page_load_timeout(30)
+        self.driver.set_page_load_timeout(20) # Reduzido de 30 para 20
         self.wait = WebDriverWait(self.driver, 10)
 
     def _fechar_driver(self):
