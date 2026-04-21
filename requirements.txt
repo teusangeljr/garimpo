@@ -36,4 +36,6 @@ pyasn1==0.6.1
 importlib-metadata==8.6.1
 zipp==3.21.0
 more-itertools==10.6.0
+celery==5.3.6
+redis==5.0.1
 flask-cors

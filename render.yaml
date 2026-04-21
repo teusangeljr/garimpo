@@ -1,11 +1,22 @@
 services:
-  # Backend API (Flask + Threading, sem Redis)
+  # 1. Redis para a Fila de Jobs (Celery)
+  - type: redis
+    name: garimpo-redis
+    ipAllowList: [] # Permite conexões apenas de serviços internos
+    plan: free
+
+  # 2. Backend API + Celery Worker (num único serviço para economizar recursos)
   - type: web
     name: garimpo-api
     env: python
     buildCommand: "./render-build.sh"
-    startCommand: "gunicorn app:app --timeout 300 --workers 1 --bind 0.0.0.0:$PORT"
+    startCommand: "bash ./start.sh"
     envVars:
+      - key: REDIS_URL
+        fromService:
+          type: redis
+          name: garimpo-redis
+          property: connectionString
       - key: PYTHON_VERSION
         value: 3.10.0
       - key: RENDER_EXTERNAL_URL
