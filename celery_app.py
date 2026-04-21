@@ -42,6 +42,7 @@ def make_celery(app_name=__name__):
         task_track_started=True,
         task_time_limit=300, # Reduzi para 5 min; 1h pode travar seu worker no Render
         
+        
         # Importante para tarefas pesadas (como Selenium no Garimpo):
         worker_prefetch_multiplier=1, # O worker pega uma tarefa por vez
         worker_max_tasks_per_child=50 # Reinicia o processo após 50 tarefas para liberar RAM
