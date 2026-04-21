@@ -5,12 +5,12 @@ services:
     ipAllowList: [] # Permite conexões apenas de serviços internos
     plan: free
 
-  # 2. Backend API (Flask)
+  # 2. Backend API + Celery Worker (num único serviço para economizar recursos)
   - type: web
     name: garimpo-api
     env: python
     buildCommand: "./render-build.sh"
-    startCommand: "gunicorn app:app --timeout 180"
+    startCommand: "bash ./start.sh"
     envVars:
       - key: REDIS_URL
         fromService:
@@ -19,33 +19,5 @@ services:
           property: connectionString
       - key: PYTHON_VERSION
         value: 3.10.0
-      - key: RENDER_EXTERNAL_URL # Para o keep-awake
+      - key: RENDER_EXTERNAL_URL
         fromContext: instanceUrl
-
-  # 3. Celery Worker (Processamento em Background)
-  - type: worker
-    name: garimpo-worker
-    env: python
-    buildCommand: "./render-build.sh"
-    startCommand: "celery -A tasks worker --loglevel=info -P solo"
-    envVars:
-      - key: REDIS_URL
-        fromService:
-          type: redis
-          name: garimpo-redis
-          property: connectionString
-      - key: PYTHON_VERSION
-        value: 3.10.0
-
-  # 4. Frontend (Vite Static Site)
-  - type: static
-    name: garimpo-frontend
-    env: static
-    buildCommand: "cd frontend && npm install && npm run build"
-    staticPublishDir: "frontend/dist"
-    envVars:
-      - key: VITE_API_URL
-        fromService:
-          type: web
-          name: garimpo-api
-          property: host
