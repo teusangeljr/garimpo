@@ -6,6 +6,7 @@ Filtros: Porte, CNAE, Capital, Idade, Situação, Site, Redes Sociais
 """
 
 from selenium import webdriver
+from selenium.webdriver.chrome.service import Service as ChromeService
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import TimeoutException, WebDriverException
 from selenium.webdriver.support.ui import WebDriverWait
@@ -332,7 +333,16 @@ class LeadScraper:
         opts.add_argument(f'--user-agent={HEADERS["User-Agent"]}')
 
         if self.browser == 'chrome':
-            self.driver = webdriver.Chrome(options=opts)
+            # No Linux (Render), usa o ChromeDriver baixado pelo render-build.sh
+            chromedriver_path = '/opt/render/project/src/.chrome/chromedriver'
+            if sys.platform.startswith('linux') and os.path.exists(chromedriver_path):
+                print(f"   Usando ChromeDriver local: {chromedriver_path}")
+                self.driver = webdriver.Chrome(
+                    service=ChromeService(executable_path=chromedriver_path),
+                    options=opts
+                )
+            else:
+                self.driver = webdriver.Chrome(options=opts)
         elif self.browser == 'firefox':
             self.driver = webdriver.Firefox(options=opts)
         else:
