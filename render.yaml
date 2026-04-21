@@ -18,6 +18,4 @@ services:
           name: garimpo-redis
           property: connectionString
       - key: PYTHON_VERSION
-        value: 3.10.0
-      - key: RENDER_EXTERNAL_URL
-        fromContext: instanceUrl
+        value: "3.10.0"
